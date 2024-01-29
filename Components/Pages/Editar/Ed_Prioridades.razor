@@ -1,0 +1,94 @@
+@page "/Ed_Prioridades/{PrioridadId:int}";
+@rendermode InteractiveServer
+@inject PrioridadesServices PrioridadesServices;
+
+
+<EditForm Model="prioridades" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h1>Registro de Prioridades</h1>
+        </div>
+        <div class="card-body">
+            <div div class="col-4">
+                <label>ID de prioridad:</label>
+                <InputNumber @bind-Value="prioridades.PrioridadId" class="form-control" disabled></InputNumber>
+            </div>
+            <div div class="col-4">
+                <label>Descripci&oacute;n:</label>
+                <InputText @bind-Value="prioridades.Descripcion" class="form-control"></InputText>
+                <ValidationMessage For="@(() => prioridades.Descripcion)" />
+            </div>
+            <div div class="col-4">
+                <label>D&iacute;as de compromiso:</label>
+                <InputNumber @bind-Value="prioridades.DiasCompromiso" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => prioridades.DiasCompromiso)" />
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-center">
+            <button type="button" class="btn btn-outline-danger" @onclick="Guardar">Editar</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private string prioridadesForm = "prioridadesForm";
+    [Parameter]
+    public int PrioridadId { get; set; }
+
+    public Prioridades prioridades = new Prioridades();
+    private bool descripcionExistente = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PrioridadId > 0)
+        {
+            prioridades.PrioridadId = PrioridadId;
+            await Buscar();
+        }
+    }
+
+    public async Task Buscar()
+    {
+        var prioridadEncontrada = await PrioridadesServices.Buscar(prioridades.PrioridadId);
+
+        if (prioridadEncontrada != null)
+            this.prioridades = prioridadEncontrada;
+    }
+
+    public bool Validar()
+    {
+        descripcionExistente = false;
+
+        var prioridadExistente = PrioridadesServices.BuscarPorDescripcion(prioridades.Descripcion);
+
+        if (prioridadExistente != null && prioridadExistente.PrioridadId != prioridades.PrioridadId)
+        {
+            descripcionExistente = true;
+            return false;
+        }
+        return !string.IsNullOrEmpty(prioridades.Descripcion) && !(prioridades.DiasCompromiso < 0);
+    }
+
+    public void Nuevo()
+    {
+        this.prioridades = new Prioridades();
+        descripcionExistente = false;
+    }
+
+    public async Task Guardar()
+    {
+        if (Validar() && await PrioridadesServices.Guardar(this.prioridades))
+        {
+            Nuevo();
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        if (await PrioridadesServices.Eliminar(this.prioridades))
+        {
+            Nuevo();
+        }
+    }
+}

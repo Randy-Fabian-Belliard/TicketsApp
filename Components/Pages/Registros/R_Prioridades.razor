@@ -1,0 +1,62 @@
+@page "/R_Prioridades";
+@rendermode InteractiveServer
+@inject PrioridadesServices PrioridadesServices;
+
+
+<EditForm Model="prioridades" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h1>Registro de Prioridades</h1>
+        </div>
+        <div class="card-body">
+            <div div class="col-4">
+                <label>ID de prioridad:</label>
+                <InputNumber @bind-Value="prioridades.PrioridadId" class="form-control"></InputNumber>
+            </div>
+            <div div class="col-4">
+                <label>Descripci&oacute;n:</label>
+                <InputText @bind-Value="prioridades.Descripcion" class="form-control"></InputText>
+                <ValidationMessage For="@(() => prioridades.Descripcion)" />
+            </div>
+            <div div class="col-4">
+                <label>D&iacute;as de compromiso:</label>
+                <InputNumber @bind-Value="prioridades.DiasCompromiso" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => prioridades.DiasCompromiso)" />
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-center">
+            <button type="submit" class="btn btn-outline-success">Crear</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private string prioridadesForm = "prioridadesForm";
+    [Parameter]
+    public int PrioridadId { get; set; }
+    public Prioridades prioridades = new Prioridades();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PrioridadId > 0)
+        {
+            prioridades.PrioridadId = PrioridadId;
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.prioridades = new Prioridades();
+    }
+
+    public async Task Guardar()
+    {
+        if (await PrioridadesServices.Guardar(this.prioridades))
+        {
+            Nuevo();
+        }
+    }
+
+}
+
