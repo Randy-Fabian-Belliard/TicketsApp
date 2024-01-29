@@ -1,0 +1,38 @@
+@page "/C_Prioridades"
+@inject PrioridadesServices PrioridadesServices;
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Prioridad ID</th>
+            <th>Descripci&oacute;n</th>
+            <th>D&aacute;s de compromiso</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in prioridades)
+        {
+            <tr>
+                <td>@item.PrioridadId</td>
+                <td>@item.Descripcion</td>
+                <td>@item.DiasCompromiso</td>
+                <td>
+                <a href="/Ed_Prioridades/@item.PrioridadId"class="btn btn-outline-success"> Editar</a>
+                <a href="/E_Prioridades/@item.PrioridadId"class="btn btn-outline-danger"> Eliminar</a>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    public List<Prioridades> prioridades { get; set; } = new List<Prioridades>();
+
+    protected override async Task OnInitializedAsync()
+    {  
+        prioridades = await PrioridadesServices.Listar(p => true);
+    }
+
+    
+}

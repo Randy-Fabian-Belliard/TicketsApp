@@ -1,0 +1,77 @@
+
+@page "/E_Prioridades/{PrioridadId:int}"
+@rendermode InteractiveServer
+@inject PrioridadesServices PrioridadesServices;
+@inject NavigationManager NavigationManager;
+
+<EditForm Model="prioridades" OnValidSubmit="Eliminar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h3 style="color: red;">¿Estás seguro de que quieres eliminar esta prioridad?</h3>
+        </div>
+        <div class="card-body">
+            <div class="col-6">
+                <label>ID de prioridad:</label>
+                <InputNumber @bind-Value="prioridades.PrioridadId" class="form-control" disabled></InputNumber>
+            </div>
+            <div class="col-6">
+                <label>Descripci&oacute;n:</label>
+                <InputText @bind-Value="prioridades.Descripcion" class="form-control"disabled></InputText>
+                <ValidationMessage For="@(() => prioridades.Descripcion)" />
+            </div>
+            <div class="col-6">
+                <label>D&iacute;as de compromiso:</label>
+                <InputNumber @bind-Value="prioridades.DiasCompromiso" class="form-control"disabled></InputNumber>
+                <ValidationMessage For="@(() => prioridades.DiasCompromiso)" />
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar </button>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    private string prioridadesForm = "prioridadesForm";
+    [Parameter]
+    public int PrioridadId { get; set; }
+
+    public Prioridades prioridades = new Prioridades();
+    private bool descripcionExistente = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PrioridadId > 0)
+        {
+            prioridades.PrioridadId = PrioridadId;
+            await Buscar();
+        }
+    }
+
+    public async Task Buscar()
+    {
+        var prioridadEncontrada = await PrioridadesServices.Buscar(prioridades.PrioridadId);
+
+        if (prioridadEncontrada != null)
+            this.prioridades = prioridadEncontrada;
+    }
+
+
+    public void Nuevo()
+    {
+        this.prioridades = new Prioridades();
+        descripcionExistente = false;
+    }
+
+    public async Task Eliminar()
+    {
+        if (await PrioridadesServices.Eliminar(this.prioridades))
+        {
+          Nuevo();
+          
+        }
+    }
+}
+
