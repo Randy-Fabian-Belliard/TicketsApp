@@ -1,0 +1,53 @@
+@page "/C_Clientes"
+@inject ClientesServices ClientesServices
+
+
+<table class = "table table-bordered" > 
+
+<thead>
+
+    <tr>
+
+        <th>Cliente ID </th> 
+        <th>Nombre </th> 
+        <th>Telefono </th> 
+        <th>Celular </th> 
+        <th>Rnc </th> 
+        <th>Email </th> 
+        <th>Direcci&oacute;n </th> 
+        
+    </tr>
+
+ </thead>
+ <tbody>
+
+@foreach (var item in clientes){
+
+    <tr>
+
+        <td> @item.ClienteId</td>
+        <td> @item.Nombres</td> 
+        <td> @item.Telefono</td>
+        <td> @item.Celular</td>  
+        <td> @item.Rnc</td>  
+        <td> @item.Email</td>  
+        <td> @item.Direccion</td> 
+        <td> 
+            <a href="/Ed_Clientes/@item.ClienteId"class="btn btn-outline-success"> Editar</a>
+            <a href="/E_Clientes/@item.ClienteId"class="btn btn-outline-danger"> Eliminar</a>
+        </td>
+           
+    </tr>    
+}   
+
+    </tbody>
+</table>
+
+@code {
+    public List<Clientes> clientes { get; set; } = new List<Clientes>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await ClientesServices.Listar(p => true);
+    }
+}

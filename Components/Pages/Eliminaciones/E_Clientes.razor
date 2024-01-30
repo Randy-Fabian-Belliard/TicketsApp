@@ -1,0 +1,93 @@
+@page "/E_Clientes/{ClienteId:int}"
+@inject ClientesServices ClientesServices
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<EditForm Model="cliente" OnValidSubmit="Eliminar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h3 style="color: red;">¿Estás seguro de que quieres eliminar este cliente?</h3>
+        </div>
+        <div class="card-body">
+            <div class="col-6">
+                <label>ID de cliente:</label>
+                <InputNumber @bind-Value="cliente.ClienteId" class="form-control" disabled></InputNumber>
+            </div>
+            <div class="col-6">
+                <label>Nombres:</label>
+                <InputText @bind-Value="cliente.Nombres" class="form-control" disabled></InputText>
+                <ValidationMessage For="@(() => cliente.Nombres)" />
+            </div>
+            <div class="col-6">
+                <label>Teléfono:</label>
+                <InputText @bind-Value="cliente.Telefono" class="form-control" disabled></InputText>
+                <ValidationMessage For="@(() => cliente.Telefono)" />
+            </div>
+            <div class="col-6">
+                <label>Celular:</label>
+                <InputText @bind-Value="cliente.Celular" class="form-control" disabled></InputText>
+                <ValidationMessage For="@(() => cliente.Celular)" />
+            </div>
+            <div class="col-6">
+                <label>RNC:</label>
+                <InputText @bind-Value="cliente.Rnc" class="form-control" disabled></InputText>
+                <ValidationMessage For="@(() => cliente.Rnc)" />
+            </div>
+            <div class="col-6">
+                <label>Email:</label>
+                <InputText @bind-Value="cliente.Email" class="form-control" disabled></InputText>
+                <ValidationMessage For="@(() => cliente.Email)" />
+            </div>
+            <div class="col-6">
+                <label>Dirección:</label>
+                <InputText @bind-Value="cliente.Direccion" class="form-control" disabled></InputText>
+                <ValidationMessage For="@(() => cliente.Direccion)" />
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-center">
+            <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private string clientesForm = "clientesForm";
+    [Parameter]
+    public int ClienteId { get; set; }
+
+    public Clientes cliente = new Clientes();
+    private bool nombreExistente = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ClienteId > 0)
+        {
+            cliente.ClienteId = ClienteId;
+            await Buscar();
+        }
+    }
+
+    public async Task Buscar()
+    {
+        var clienteEncontrado = await ClientesServices.Buscar(cliente.ClienteId);
+
+        if (clienteEncontrado != null)
+            this.cliente = clienteEncontrado;
+    }
+
+    public void Nuevo()
+    {
+        this.cliente = new Clientes();
+        nombreExistente = false;
+    }
+
+    public async Task Eliminar()
+    {
+        if (await ClientesServices.Eliminar(this.cliente))
+        {
+            Nuevo();
+        }
+    }
+}
+
