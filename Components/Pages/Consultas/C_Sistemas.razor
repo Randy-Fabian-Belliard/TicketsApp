@@ -1,0 +1,34 @@
+@page "/C_Sistemas"
+@inject SistemasServices SistemasServices;
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Sistema ID</th>
+            <th>Nombre</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in sistemas)
+        {
+            <tr>
+                <td>@item.SistemaId</td>
+                <td>@item.Nombre</td>
+                <td>
+                    <a href="/Ed_Sistemas/@item.SistemaId" class="btn btn-outline-success">Editar</a>
+                    <a href="/E_Sistemas/@item.SistemaId" class="btn btn-outline-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    public List<Sistemas> sistemas { get; set; } = new List<Sistemas>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        sistemas = await SistemasServices.Listar(p => true);
+    }
+}

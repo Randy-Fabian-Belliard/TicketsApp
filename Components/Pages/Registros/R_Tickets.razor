@@ -1,0 +1,154 @@
+@page "/R_Tickets"
+@inject TicketsServices TicketsServices;
+@using System.Linq.Expressions;
+@inject ClientesServices ClientesServices
+@inject SistemasServices SistemasServices;
+@inject PrioridadesServices PrioridadesServices;
+@rendermode InteractiveServer
+
+ <EditForm Model="ticket" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card">
+            
+            <div class="card-header">
+                <h3>Registro de Clientes</h3>
+             </div>
+
+            <div class="card-body">
+                <label>Fecha</label>
+                <div class="col-3">
+                        <InputDate class="form-control" @bind-Value="ticket.Fecha" aria-describedby="ApellidoCliente"></InputDate>
+                        <ValidationMessage For="@(() => ticket.Fecha)" />
+            </div>
+
+            <label>Seleccione un cliente</label>
+            <div class="col-3">
+                <select @bind="ticket.ClienteId" class="form-select">
+                    @foreach (var cliente in listaClientes)
+                    {
+                        <option value="@cliente.ClienteId">@cliente.Nombres</option>
+                    }
+                </select>
+            </div>
+
+            <label>Seleccione un sistema</label>
+            <div class="col-3">
+                <select @bind="ticket.SistemaId" class="form-select">
+                    @foreach (var sistema in listaSistemas)
+                    {
+                        <option value="@sistema.SistemaId">@sistema.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <label>Seleccione una prioridad</label>
+            <div class="col-3">
+                <select @bind="ticket.PrioridadId" class="form-select">
+                    @foreach (var prioridad in listaPrioridades)
+                    {
+                        <option value="@prioridad.PrioridadId">@prioridad.Descripcion</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-6" >
+                <label>Solicitado Por:</label>
+                <InputText @bind-Value="ticket.SolicitadoPor" class="form-control"></InputText>
+                <ValidationMessage For="@(() => ticket.SolicitadoPor)" />
+            </div>
+
+            <div class="col-6">
+                <label>Descripci&oacute;n:</label>
+                <InputText @bind-Value="ticket.Descripcion" class="form-control"></InputText>
+                <ValidationMessage For="@(() => ticket.Descripcion)" />
+            </div>
+
+            <div class="col-6">
+                <label>Asunto:</label>
+                <InputText @bind-Value="ticket.Asunto" class="form-control"></InputText>
+                <ValidationMessage For="@(() => ticket.Asunto)" />
+            </div>
+
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+                <button type="submit" class="btn btn-outline-success">Crear</button>
+            </div> 
+        </div>
+    </div>
+ </EditForm>
+
+@code {
+    private string ticketsForm = "ticketsForm";
+    [Parameter]
+    public int TicketId { get; set; }
+    public Tickets ticket = new Tickets();
+    private List<Clientes> listaClientes = new List<Clientes>();
+    private List<Sistemas> listaSistemas = new List<Sistemas>();
+    private List<Prioridades> listaPrioridades = new List<Prioridades>();
+    private bool descripcionExistente = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    Expression<Func<Clientes, bool>> criterio = cliente => true;
+    listaClientes = await ClientesServices.Listar(criterio);
+
+    Expression<Func<Sistemas, bool>> criterioSistemas = sistema => true;
+    listaSistemas = await SistemasServices.Listar(criterioSistemas);
+
+    Expression<Func<Prioridades, bool>> criterioPrioridades = prioridad => true;
+    listaPrioridades = await PrioridadesServices.Listar(criterioPrioridades);
+
+    
+        if (TicketId > 0)
+        {
+            ticket.TicketId = TicketId;
+            await Buscar();
+        }
+    }
+  public async Task Buscar()
+    {
+        var ticketEncontrado = await TicketsServices.Buscar(ticket.TicketId);
+
+        if (ticketEncontrado != null)
+            this.ticket = ticketEncontrado;
+    }
+
+    public bool Validar()
+    {
+        descripcionExistente = false;
+
+        var ticketExistente = TicketsServices.BuscarPorDescripcion(ticket.Descripcion);
+
+        if (ticketExistente != null && ticketExistente.TicketId != ticket.TicketId)
+        {
+            descripcionExistente = true;
+            return false;
+        }
+
+        return !string.IsNullOrEmpty(ticket.Descripcion) && !(ticket.Fecha == DateTime.MinValue) && !(ticket.ClienteId <= 0) && !(ticket.SistemaId <= 0) && !(ticket.PrioridadId <= 0);
+    }
+
+    public void Nuevo()
+    {
+        this.ticket = new Tickets();
+        descripcionExistente = false;
+    }
+
+    public async Task Guardar()
+    {
+        if (Validar() && await TicketsServices.Guardar(this.ticket))
+        {
+            Nuevo();
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        if (await TicketsServices.Eliminar(this.ticket))
+        {
+            Nuevo();
+        }
+    }
+}

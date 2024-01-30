@@ -21,7 +21,8 @@ namespace TicketsApp.Models {
     [Required(ErrorMessage = "Campo Obligatorio")]
        
     public string ? Direccion{ get; set; }
-
+    [ForeignKey("ClienteId")]
+    public ICollection<Tickets> Tickets { get; set; } = new List<Tickets>();
 
     }
     }
