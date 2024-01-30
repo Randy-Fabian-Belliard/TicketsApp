@@ -13,5 +13,8 @@ namespace TicketsApp.Models {
     [Range(1, 29, ErrorMessage = "Los días de compromiso deben ser mayores que cero y menores que 30.")]
     public int DiasCompromiso{ get; set; }
 
+    [ForeignKey("PrioridadId")]
+    public ICollection<Tickets> Tickets { get; set; } = new List<Tickets>();
+
     }
 }

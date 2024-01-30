@@ -1,0 +1,67 @@
+@page "/Ed_Sistemas/{SistemaId:int}"
+@inject SistemasServices SistemasServices
+@inject NavigationManager NavigationManager
+
+<EditForm Model="sistema" OnValidSubmit="Eliminar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h3 style="color: red;">¿Estás seguro de que quieres eliminar este sistema?</h3>
+        </div>
+        <div class="card-body">
+            <div class="col-6">
+                <label>ID de sistema:</label>
+                <InputNumber @bind-Value="sistema.SistemaId" class="form-control" disabled></InputNumber>
+            </div>
+            <div class="col-6">
+                <label>Nombre:</label>
+                <InputText @bind-Value="sistema.Nombre" class="form-control" disabled></InputText>
+                <ValidationMessage For="@(() => sistema.Nombre)" />
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-center">
+            <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private string sistemasForm = "sistemasForm";
+    [Parameter]
+    public int SistemaId { get; set; }
+
+    public Sistemas sistema = new Sistemas();
+    private bool nombreExistente = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (SistemaId > 0)
+        {
+            sistema.SistemaId = SistemaId;
+            await Buscar();
+        }
+    }
+
+    public async Task Buscar()
+    {
+        var sistemaEncontrado = await SistemasServices.Buscar(sistema.SistemaId);
+
+        if (sistemaEncontrado != null)
+            this.sistema = sistemaEncontrado;
+    }
+
+    public void Nuevo()
+    {
+        this.sistema = new Sistemas();
+        nombreExistente = false;
+    }
+
+    public async Task Eliminar()
+    {
+        if (await SistemasServices.Eliminar(this.sistema))
+        {
+            Nuevo();
+
+        }
+    }
+}

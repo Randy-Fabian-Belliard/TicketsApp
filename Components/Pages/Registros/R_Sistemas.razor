@@ -1,0 +1,94 @@
+@page "/R_Sistemas"
+@rendermode InteractiveServer
+@inject SistemasServices SistemasServices;
+
+
+ <EditForm Model="sistema" OnValidSubmit="Guardar">
+     <DataAnnotationsValidator />
+     <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>Registro de Sitemas</h1>
+            </div>
+            <div class="card-body">
+
+                <div>
+                    <label>Nombre:</label>
+                    <InputText @bind-Value="sistema.Nombre" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => sistema.Nombre)" />
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+
+                <button type="submit" class="btn btn-outline-success">Crear</button>
+
+            </div>    
+
+        </div>
+    </div>
+ </EditForm>
+
+
+
+
+@code {
+    private string sistemasForm = "sistemasForm";
+    [Parameter]
+    public int SistemaId { get; set; }
+
+    public Sistemas sistema = new Sistemas();
+    private bool nombreExistente = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (SistemaId > 0)
+        {
+            sistema.SistemaId = SistemaId;
+            await Buscar();
+        }
+    }
+
+    public async Task Buscar()
+    {
+        var sistemaEncontrado = await SistemasServices.Buscar(sistema.SistemaId);
+
+        if (sistemaEncontrado != null)
+            this.sistema = sistemaEncontrado;
+    }
+
+    public bool Validar()
+    {
+        nombreExistente = false;
+
+        var sistemaExistente = SistemasServices.BuscarPorNombre(sistema.Nombre);
+
+        if (sistemaExistente != null && sistemaExistente.SistemaId != sistema.SistemaId)
+        {
+            nombreExistente = true;
+            return false;
+        }
+        return !string.IsNullOrEmpty(sistema.Nombre);
+    }
+
+    public void Nuevo()
+    {
+        this.sistema = new Sistemas();
+        nombreExistente = false;
+    }
+
+    public async Task Guardar()
+    {
+        if (Validar() && await SistemasServices.Guardar(this.sistema))
+        {
+            Nuevo();
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        if (await SistemasServices.Eliminar(this.sistema))
+        {
+            Nuevo();
+        }
+    }
+}

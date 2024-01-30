@@ -1,0 +1,100 @@
+@page "/C_Tickets"
+@inject TicketsServices TicketsServices;
+@inject ClientesServices ClientesServices;
+@inject SistemasServices SistemasServices;
+@inject PrioridadesServices PrioridadesServices;
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ticket ID</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Sistema</th>
+            <th>Prioridad</th>
+            <th>Solicitado Por</th>
+            <th>Asunto</th>
+            <th>Descripción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in tickets)
+        {
+            <tr>
+                <td>@item.TicketId</td>
+                <td>@item.Fecha.ToShortDateString()</td>
+                <td>@item.NombreCliente</td>
+                <td>@item.NombreSistema</td>
+                <td>@item.DescripcionPrioridad</td>
+                <td>@item.SolicitadoPor</td>
+                <td>@item.Asunto</td>
+                <td>@item.Descripcion</td>
+                <td>
+                    <a href="/Ed_Tickets/@item.TicketId" class="btn btn-outline-success">Editar</a>
+                    <a href="/E_Tickets/@item.TicketId" class="btn btn-outline-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+
+    public List<VistaTickets> tickets { get; set; } = new List<VistaTickets>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var DescripcionTicket = await TicketsServices.Listar(t => true);
+
+        foreach (var item in DescripcionTicket)
+        {
+            var nombreCliente = await ObtenerNombreCliente(item.ClienteId);
+            var nombreSistema = await ObtenerNombreSistema(item.SistemaId);
+            var descripcionPrioridad = await ObtenerDescripcionPrioridad(item.PrioridadId);
+
+            var ticketViewModel = new VistaTickets
+            {
+                TicketId = item.TicketId,
+                Fecha = item.Fecha,
+                NombreCliente = nombreCliente,
+                NombreSistema = nombreSistema,
+                DescripcionPrioridad = descripcionPrioridad,
+                SolicitadoPor = item.SolicitadoPor,
+                Asunto = item.Asunto,
+                Descripcion = item.Descripcion
+            };
+
+            tickets.Add(ticketViewModel);
+        }
+    }
+
+    private async Task<string> ObtenerNombreCliente(int clienteId)
+    {
+        var cliente = await ClientesServices.Buscar(clienteId);
+        return cliente?.Nombres;
+    }
+
+    private async Task<string> ObtenerNombreSistema(int sistemaId)
+    {
+        var sistema = await SistemasServices.Buscar(sistemaId);
+        return sistema?.Nombre ;
+    }
+
+    private async Task<string> ObtenerDescripcionPrioridad(int prioridadId)
+    {
+        var prioridad = await PrioridadesServices.Buscar(prioridadId);
+        return prioridad?.Descripcion;
+    }
+
+    public class VistaTickets
+    {
+        public int TicketId { get; set; }
+        public DateTime Fecha { get; set; }
+        public string? NombreCliente { get; set; }
+        public string? NombreSistema { get; set; }
+        public string? DescripcionPrioridad { get; set; }
+        public string? SolicitadoPor { get; set; }
+        public string? Asunto { get; set; }
+        public string? Descripcion { get; set; }
+    }
+}

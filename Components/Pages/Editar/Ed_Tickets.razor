@@ -1,0 +1,94 @@
+@page "/Ed_Tickets/{TicketId:int}"
+@inject TicketsServices TicketsServices
+@inject NavigationManager NavigationManager
+
+<EditForm Model="ticket" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h1>Editar Ticket</h1>
+        </div>
+        <div class="card-body">
+            <div class="col-4">
+                <label>ID de ticket:</label>
+                <InputNumber @bind-Value="ticket.TicketId" class="form-control" disabled></InputNumber>
+            </div>
+            <div class="col-4">
+                <label>Fecha:</label>
+                <InputDate @bind-Value="ticket.Fecha" class="form-control"></InputDate>
+                <ValidationMessage For="@(() => ticket.Fecha)" />
+            </div>
+            <div class="col-4">
+                <label>ID de cliente:</label>
+                <InputNumber @bind-Value="ticket.ClienteId" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => ticket.ClienteId)" />
+            </div>
+            <div class="col-4">
+                <label>ID de sistema:</label>
+                <InputNumber @bind-Value="ticket.SistemaId" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => ticket.SistemaId)" />
+            </div>
+            <div class="col-4">
+                <label>ID de prioridad:</label>
+                <InputNumber @bind-Value="ticket.PrioridadId" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => ticket.PrioridadId)" />
+            </div>
+            <div class="col-4">
+                <label>Solicitado Por:</label>
+                <InputText @bind-Value="ticket.SolicitadoPor" class="form-control"></InputText>
+                <ValidationMessage For="@(() => ticket.SolicitadoPor)" />
+            </div>
+            <div class="col-4">
+                <label>Asunto:</label>
+                <InputText @bind-Value="ticket.Asunto" class="form-control"></InputText>
+                <ValidationMessage For="@(() => ticket.Asunto)" />
+            </div>
+            <div class="col-4">
+                <label>Descripción:</label>
+                <InputText @bind-Value="ticket.Descripcion" class="form-control"></InputText>
+                <ValidationMessage For="@(() => ticket.Descripcion)" />
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-center">
+            <button type="button" class="btn btn-outline-success" @onclick="Guardar">Guardar</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private string ticketsForm = "ticketsForm";
+    [Parameter]
+    public int TicketId { get; set; }
+
+    public Tickets ticket = new Tickets();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TicketId > 0)
+        {
+            ticket.TicketId = TicketId;
+            await Buscar();
+        }
+    }
+
+    public async Task Buscar()
+    {
+        var ticketEncontrado = await TicketsServices.Buscar(ticket.TicketId);
+
+        if (ticketEncontrado != null)
+            this.ticket = ticketEncontrado;
+    }
+
+    public void Nuevo()
+    {
+        this.ticket = new Tickets();
+    }
+
+    public async Task Guardar()
+    {
+        if ( await TicketsServices.Guardar(this.ticket))
+        {
+            Nuevo();
+        }
+    }
+}
