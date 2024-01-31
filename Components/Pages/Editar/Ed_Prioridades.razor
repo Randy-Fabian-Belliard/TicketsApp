@@ -1,13 +1,13 @@
 @page "/Ed_Prioridades/{PrioridadId:int}";
-@rendermode InteractiveServer
 @inject PrioridadesServices PrioridadesServices;
+@rendermode InteractiveServer
 
 
 <EditForm Model="prioridades" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="card">
         <div class="card-header">
-            <h1>Registro de Prioridades</h1>
+            <h1>Editar Prioridad</h1>
         </div>
         <div class="card-body">
             <div div class="col-4">
@@ -19,11 +19,12 @@
                 <InputText @bind-Value="prioridades.Descripcion" class="form-control"></InputText>
                 <ValidationMessage For="@(() => prioridades.Descripcion)" />
             </div>
-            <div div class="col-4">
+            <div class="col-4">
                 <label>D&iacute;as de compromiso:</label>
                 <InputNumber @bind-Value="prioridades.DiasCompromiso" class="form-control"></InputNumber>
                 <ValidationMessage For="@(() => prioridades.DiasCompromiso)" />
             </div>
+
         </div>
         <div class="card-footer d-flex justify-content-center">
             <button type="button" class="btn btn-outline-danger" @onclick="Guardar">Editar</button>

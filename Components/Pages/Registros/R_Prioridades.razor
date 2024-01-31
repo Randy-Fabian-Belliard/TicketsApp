@@ -11,10 +11,6 @@
         </div>
         <div class="card-body">
             <div div class="col-4">
-                <label>ID de prioridad:</label>
-                <InputNumber @bind-Value="prioridades.PrioridadId" class="form-control"></InputNumber>
-            </div>
-            <div div class="col-4">
                 <label>Descripci&oacute;n:</label>
                 <InputText @bind-Value="prioridades.Descripcion" class="form-control"></InputText>
                 <ValidationMessage For="@(() => prioridades.Descripcion)" />

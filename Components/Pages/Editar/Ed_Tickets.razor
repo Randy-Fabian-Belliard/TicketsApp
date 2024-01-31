@@ -1,6 +1,7 @@
 @page "/Ed_Tickets/{TicketId:int}"
 @inject TicketsServices TicketsServices
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
 <EditForm Model="ticket" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />

@@ -1,26 +1,26 @@
 @page "/Ed_Sistemas/{SistemaId:int}"
 @inject SistemasServices SistemasServices
-@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
-<EditForm Model="sistema" OnValidSubmit="Eliminar">
+<EditForm Model="sistema" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="card">
         <div class="card-header">
-            <h3 style="color: red;">¿Estás seguro de que quieres eliminar este sistema?</h3>
+            <h1>Editar Sistema</h1>
         </div>
         <div class="card-body">
-            <div class="col-6">
+            <div class="col-4">
                 <label>ID de sistema:</label>
                 <InputNumber @bind-Value="sistema.SistemaId" class="form-control" disabled></InputNumber>
             </div>
-            <div class="col-6">
+            <div class="col-4">
                 <label>Nombre:</label>
-                <InputText @bind-Value="sistema.Nombre" class="form-control" disabled></InputText>
+                <InputText @bind-Value="sistema.Nombre" class="form-control"></InputText>
                 <ValidationMessage For="@(() => sistema.Nombre)" />
             </div>
         </div>
         <div class="card-footer d-flex justify-content-center">
-            <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar</button>
+            <button type="button" class="btn btn-outline-success" @onclick="Guardar">Guardar</button>
         </div>
     </div>
 </EditForm>
@@ -31,7 +31,6 @@
     public int SistemaId { get; set; }
 
     public Sistemas sistema = new Sistemas();
-    private bool nombreExistente = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -50,18 +49,21 @@
             this.sistema = sistemaEncontrado;
     }
 
+    public bool Validar()
+    {
+        return !string.IsNullOrEmpty(sistema.Nombre);
+    }
+
     public void Nuevo()
     {
         this.sistema = new Sistemas();
-        nombreExistente = false;
     }
 
-    public async Task Eliminar()
+    public async Task Guardar()
     {
-        if (await SistemasServices.Eliminar(this.sistema))
+        if (Validar() && await SistemasServices.Guardar(this.sistema))
         {
             Nuevo();
-
         }
     }
 }
